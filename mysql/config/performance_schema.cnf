@@ -1,0 +1,14 @@
+[mysqld]
+####################
+# Performance schema
+####################
+performance_schema=ON
+performance_schema_instrument='wait/lock/metadata/sql/mdl=ON'
+
+performance_schema_consumer_events_statements_current=ON
+performance_schema_consumer_events_statements_history=ON
+performance_schema_consumer_events_statements_history_long=ON
+
+performance_schema_consumer_events_waits_current=ON
+performance_schema_consumer_events_waits_history=ON
+#performance_schema_consumer_events_waits_history_long=ON

@@ -1,0 +1,75 @@
+# cadvisor:
+#   container_name: cadvisor
+#   hostname: cadvisor.local
+#   image: google/cadvisor:latest
+#   volumes:
+#    - /:/rootfs:ro
+#    - /var/run:/var/run:rw
+#    - /sys:/sys:ro
+#    - /var/lib/docker/:/var/lib/docker:ro
+#   ports:
+#    - "8080:8080"
+
+mysql_data:
+  container_name: mysql_data
+  image: tianon/true
+  volumes:
+    - /var/lib/mysql
+    - /var/lib/mysql-files
+
+mysql:
+  container_name: mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=ple15
+    - MYSQL_DATABASE=world
+  build: mysql
+  volumes_from:
+    - mysql_data
+  volumes:
+    - "./mysql/config:/etc/mysql/conf.d"
+  expose:
+    - "3306"
+  ports:
+    - "3306:3306"
+
+elasticsearch_data:
+  container_name: elasticsearch_data
+  image: tianon/true
+  volumes:
+    - /usr/share/elasticsearch/data
+
+elasticsearch:
+  container_name: elasticsearch
+  build: elasticsearch
+  volumes_from:
+    - elasticsearch_data
+  command: -Des.node.name="PLE15"
+  ports:
+    - "9200:9200"
+
+graphite:
+  container_name: graphite
+  image: kamon/grafana_graphite
+  ports:
+    - "8000:80"
+    - "8126:8126"
+
+logstash:
+  container_name: logstash
+  build: logstash
+  volumes:
+    - "./logstash/scripts:/opt/logstash/scripts"
+  environment:
+    - ES_PROXY_HOST=192.168.99.100
+  links:
+    - mysql
+    - graphite
+    - "elasticsearch:es"
+  ports:
+    - "9292:9292"
+
+sysbench:
+  container_name: sysbench
+  build: ./sysbench
+  links:
+    - "mysql"
